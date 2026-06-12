@@ -1169,19 +1169,148 @@ function renderBooking(c) {
 }
 
 function renderEvents(c) {
+    const menuTabActive = false;
     c.innerHTML = `
     <div class="card">
-        <div class="section-header">
-            <div>
-                <h2><i class="fa-solid fa-champagne-glasses" style="color:var(--primary);margin-right:10px;"></i>Event Management</h2>
-                <p>${store.data.reservations.length} events in database</p>
+        <div class="section-header" style="display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <h2><i class="fa-solid fa-champagne-glasses" style="color:var(--primary);margin-right:10px;"></i>Event Management</h2>
+                    <p>${store.data.reservations.length} events in database</p>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <button class="btn btn-primary" onclick="openReservationModal()">
+                        <i class="fa-solid fa-plus" style="margin-right:8px;"></i>Create Event
+                    </button>
+                </div>
             </div>
-            <button class="btn btn-primary" onclick="openReservationModal()">
-                <i class="fa-solid fa-plus" style="margin-right:8px;"></i>Create Event
-            </button>
+
+            <div class="tabs" style="display:flex;gap:8px;margin-top:6px;">
+                <button id="eventsTabBtn" class="tab-btn active" onclick="switchEventsTab('events')">Events</button>
+                <button id="menuTabBtn" class="tab-btn" onclick="switchEventsTab('menu')">Menu Collection</button>
+            </div>
         </div>
-        ${reservationTable(store.data.reservations, { showConfirm: true, showReject: true })}
+
+        <div id="eventsTabContent" style="margin-top:16px;">
+            ${reservationTable(store.data.reservations, { showConfirm: true, showReject: true })}
+        </div>
+
+        <div id="menuTabContent" style="display:none;margin-top:16px;"></div>
     </div>`;
+
+    // Initialize menu tab content
+    renderMenuCollection($('menuTabContent'));
+}
+
+function switchEventsTab(tab) {
+    $('eventsTabBtn').classList.toggle('active', tab === 'events');
+    $('menuTabBtn').classList.toggle('active', tab === 'menu');
+    $('eventsTabContent').style.display = tab === 'events' ? '' : 'none';
+    $('menuTabContent').style.display   = tab === 'menu' ? '' : 'none';
+}
+
+// --- Menu Collection Helpers ---
+const MENU_CATEGORIES = [
+    'Action Station (Live Cooking Station)',
+    'Appetizers / Starters',
+    'Main Course',
+    'Desserts / Sweet / Dessert Live Station',
+    'Beverage Station',
+    'Bakery / Bread Station',
+    'Salad Bar',
+    'Soup Station',
+    'Live Grill / BBQ Station'
+];
+
+function safeKey(str) { return str.replace(/[^a-z0-9]/gi, '_').toLowerCase(); }
+
+function getMenuCollection() {
+    try {
+        const raw = store.data.settings && store.data.settings.menu_collection;
+        return raw ? JSON.parse(raw) : {};
+    } catch (e) { return {}; }
+}
+
+function renderMenuCollection(container) {
+    const menu = getMenuCollection();
+    // ensure categories exist
+    MENU_CATEGORIES.forEach(cat => { if (!menu[cat]) menu[cat] = []; });
+
+    container.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 style="margin:0;"><i class="fa-solid fa-utensils" style="color:var(--primary);margin-right:10px;"></i>Menu Collection</h3>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn btn-outline" onclick="renderMenuCollection($('menuTabContent'))">Reload</button>
+                <button class="btn btn-primary" onclick="saveMenuCollection()">Save Menu</button>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+            ${MENU_CATEGORIES.map(cat => {
+                const key = safeKey(cat);
+                const items = menu[cat] || [];
+                return `
+                <div class="card">
+                    <strong style="display:block;margin-bottom:8px;">${cat}</strong>
+                    <div id="menu-list-${key}" style="display:flex;flex-direction:column;gap:8px;">
+                        ${items.map((it, i) => `
+                            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                                <div style="font-size:14px;color:var(--text-bright);">${it}</div>
+                                <div style="display:flex;gap:6px;">
+                                    <button class="btn btn-outline btn-sm" onclick="removeMenuItem('${encodeURIComponent(cat)}', ${i})">Remove</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+                        <input id="menu-input-${key}" placeholder="Add new item..." style="flex:1;padding:8px;border-radius:6px;border:1px solid var(--glass-border);">
+                        <button class="btn btn-primary btn-sm" onclick="addMenuItem('${encodeURIComponent(cat)}')">Add</button>
+                    </div>
+                </div>`;
+            }).join('')}
+        </div>
+    `;
+}
+
+function addMenuItem(encodedCat) {
+    const cat = decodeURIComponent(encodedCat);
+    const key = safeKey(cat);
+    const input = $(`menu-input-${key}`);
+    if (!input) return;
+    const val = input.value.trim();
+    if (!val) { showToast('Enter a menu item name', 'warning'); return; }
+    const menu = getMenuCollection();
+    if (!menu[cat]) menu[cat] = [];
+    menu[cat].push(val);
+    input.value = '';
+    // re-render
+    renderMenuCollection($('menuTabContent'));
+}
+
+function removeMenuItem(encodedCat, idx) {
+    const cat = decodeURIComponent(encodedCat);
+    const menu = getMenuCollection();
+    if (!menu[cat]) return;
+    menu[cat].splice(idx, 1);
+    renderMenuCollection($('menuTabContent'));
+}
+
+async function saveMenuCollection() {
+    try {
+        const menu = getMenuCollection();
+        // collect UI values (in case user added but not reloaded)
+        MENU_CATEGORIES.forEach(cat => {
+            const key = safeKey(cat);
+            const listEl = $(`menu-list-${key}`);
+            if (!listEl) return;
+            // rebuild items from DOM to preserve order
+            const items = Array.from(listEl.querySelectorAll('div')).map(d => d.firstElementChild ? d.firstElementChild.textContent.trim() : '').filter(Boolean);
+            menu[cat] = items;
+        });
+
+        await store.fetchAPI('/settings', { method: 'PUT', body: JSON.stringify({ menu_collection: JSON.stringify(menu) }) });
+        await store.refreshData();
+        showToast('Menu collection saved ✓', 'success');
+    } catch (err) { showToast('Failed to save menu: ' + err.message, 'danger'); }
 }
 
 function renderRooms(c) {
