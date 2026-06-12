@@ -1222,42 +1222,156 @@ const MENU_CATEGORIES = [
     'Live Grill / BBQ Station'
 ];
 
+const DEFAULT_MENU_ITEMS = {
+    'Action Station (Live Cooking Station)': [
+        'Pasta (Alfredo / Bolognese / Carbonara)',
+        'Fried noodles (Chicken / Seafood / Vegetable)',
+        'Omelette (cheese, mushroom, onion, chili options)',
+        'Dosa / Hoppers (Sri Lankan live station)',
+        'Stir-fried rice (egg / chicken / mixed)',
+        'Carving roast chicken / beef slices'
+    ],
+    'Appetizers / Starters': [
+        'Chicken spring rolls',
+        'Vegetable samosas',
+        'Garlic bread bites',
+        'Devilled chicken / fish',
+        'Prawn cocktail',
+        'Mini sliders (beef or chicken)',
+        'Stuffed mushrooms'
+    ],
+    'Main Course': [
+        'Chicken curry (Sri Lankan / Indian style)',
+        'Beef curry',
+        'Fish ambul thiyal',
+        'Vegetable korma',
+        'Fried rice / steamed rice',
+        'Pasta with sauces',
+        'Grilled chicken steak',
+        'Lamb stew'
+    ],
+    'Desserts / Sweet / Dessert Live Station': [
+        'Chocolate fountain with fruits',
+        'Ice cream (vanilla, chocolate, strawberry)',
+        'Watalappan (Sri Lankan dessert)',
+        'Cheesecake slices',
+        'Fruit salad',
+        'Pancakes with toppings (live station)',
+        'Chocolate mousse'
+    ],
+    'Beverage Station': [
+        'Fresh lime juice',
+        'Orange juice',
+        'Mango juice',
+        'Soft drinks (cola, sprite)',
+        'Tea (black / milk tea)',
+        'Coffee (espresso / cappuccino)',
+        'Mocktails (mojito, sunrise)'
+    ],
+    'Bakery / Bread Station': [
+        'Croissants',
+        'Dinner rolls',
+        'Garlic bread',
+        'Baguette slices',
+        'Muffins (chocolate / blueberry)',
+        'Danish pastries',
+        'Butter & jam spreads'
+    ],
+    'Salad Bar': [
+        'Lettuce, cucumber, tomato mix',
+        'Beetroot salad',
+        'Coleslaw',
+        'Pasta salad',
+        'Potato salad',
+        'Corn salad',
+        'Dressings (vinaigrette, mayo, yogurt)'
+    ],
+    'Soup Station': [
+        'Chicken clear soup',
+        'Cream of mushroom soup',
+        'Sweet corn soup',
+        'Pumpkin soup',
+        'Seafood soup',
+        'Lentil soup (dal soup)'
+    ],
+    'Live Grill / BBQ Station': [
+        'Grilled chicken skewers',
+        'Beef steak slices',
+        'Grilled prawns',
+        'BBQ sausages',
+        'Grilled fish fillets',
+        'Vegetable skewers (capsicum, mushroom, onion)'
+    ]
+};
+
+const MENU_SELECTION_LIMIT = 3;
+const MENU_APPROVAL_THRESHOLD = 4;
+
 function safeKey(str) { return str.replace(/[^a-z0-9]/gi, '_').toLowerCase(); }
 
 function getMenuCollection() {
     try {
         const raw = store.data.settings && store.data.settings.menu_collection;
-        return raw ? JSON.parse(raw) : {};
-    } catch (e) { return {}; }
+        if (!raw) {
+            // Return a deep copy of default items
+            const copy = {};
+            for (let cat in DEFAULT_MENU_ITEMS) {
+                copy[cat] = [...DEFAULT_MENU_ITEMS[cat]];
+            }
+            return copy;
+        }
+        return JSON.parse(raw);
+    } catch (e) { 
+        // Return a deep copy of default items on error
+        const copy = {};
+        for (let cat in DEFAULT_MENU_ITEMS) {
+            copy[cat] = [...DEFAULT_MENU_ITEMS[cat]];
+        }
+        return copy;
+    }
 }
 
 function renderMenuCollection(container) {
-    const menu = getMenuCollection();
-    // ensure categories exist
-    MENU_CATEGORIES.forEach(cat => { if (!menu[cat]) menu[cat] = []; });
+    let menu = getMenuCollection();
+    
+    // Ensure categories exist with proper default structure
+    MENU_CATEGORIES.forEach(cat => { 
+        if (!menu[cat] || menu[cat].length === 0) {
+            menu[cat] = DEFAULT_MENU_ITEMS[cat] ? [...DEFAULT_MENU_ITEMS[cat]] : [];
+        }
+    });
 
     container.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <h3 style="margin:0;"><i class="fa-solid fa-utensils" style="color:var(--primary);margin-right:10px;"></i>Menu Collection</h3>
-            <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn btn-outline" onclick="renderMenuCollection($('menuTabContent'))">Reload</button>
-                <button class="btn btn-primary" onclick="saveMenuCollection()">Save Menu</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--glass-border);">
+            <h3 style="margin:0;font-size:20px;font-weight:600;"><i class="fa-solid fa-utensils" style="color:var(--primary);margin-right:10px;"></i>Menu Collection</h3>
+            <div style="display:flex;gap:10px;align-items:center;">
+                <button class="btn btn-outline" onclick="renderMenuCollection($('menuTabContent'))" style="padding:8px 16px;">Reload</button>
+                <button class="btn btn-primary" onclick="saveMenuCollection()" style="padding:8px 16px;">Save Menu</button>
             </div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+        <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px;color:var(--text-muted);">
+            <i class="fa-solid fa-info-circle" style="color:var(--primary);margin-right:6px;"></i>
+            <strong>Selection Limit:</strong> Max 3 items per category • Items 4+ require manager approval
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;">
             ${MENU_CATEGORIES.map(cat => {
                 const key = safeKey(cat);
                 const items = menu[cat] || [];
+                const itemCount = items.length;
+                const requiresApproval = itemCount > MENU_APPROVAL_THRESHOLD;
+                const selectedCount = Math.min(itemCount, MENU_SELECTION_LIMIT);
                 return `
-                <div class="card">
-                    <strong style="display:block;margin-bottom:8px;">${cat}</strong>
-                    <div id="menu-list-${key}" style="display:flex;flex-direction:column;gap:8px;">
+                <div class="card" style="${requiresApproval ? 'border:2px solid var(--warning);' : ''}">
+                    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">
+                        <strong style="display:block;">${cat}</strong>
+                        <div style="background:var(--primary);color:white;border-radius:12px;padding:3px 10px;font-size:12px;font-weight:600;">${itemCount} items</div>
+                    </div>
+                    ${requiresApproval ? `<div style="background:var(--warning);color:white;padding:8px;border-radius:6px;font-size:12px;margin-bottom:8px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>⚠️ Requires approval (${itemCount} items)</div>` : ''}
+                    <div id="menu-list-${key}" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
                         ${items.map((it, i) => `
-                            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-                                <div style="font-size:14px;color:var(--text-bright);">${it}</div>
-                                <div style="display:flex;gap:6px;">
-                                    <button class="btn btn-outline btn-sm" onclick="removeMenuItem('${encodeURIComponent(cat)}', ${i})">Remove</button>
-                                </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px;background:var(--glass-bg);border-radius:4px;${i >= MENU_SELECTION_LIMIT ? 'opacity:0.6;border:1px dashed var(--warning);' : ''}">
+                                <div style="font-size:13px;color:var(--text-bright);flex:1;">${i+1}. ${it}${i >= MENU_SELECTION_LIMIT ? ' <span style="color:var(--warning);font-weight:600;">[PENDING]</span>' : ''}</div>
+                                <button class="btn btn-outline btn-sm" onclick="removeMenuItem('${encodeURIComponent(cat)}', ${i})" style="flex-shrink:0;">✕</button>
                             </div>
                         `).join('')}
                     </div>
@@ -1280,10 +1394,19 @@ function addMenuItem(encodedCat) {
     if (!val) { showToast('Enter a menu item name', 'warning'); return; }
     const menu = getMenuCollection();
     if (!menu[cat]) menu[cat] = [];
+    
+    const currentCount = menu[cat].length;
+    if (currentCount >= MENU_APPROVAL_THRESHOLD) {
+        const approved = confirm(`⚠️ Warning: You are adding item #${currentCount + 1} to "${cat}".\n\nOnly ${MENU_SELECTION_LIMIT} items are typically selected per station.\nItems beyond ${MENU_SELECTION_LIMIT} require manager approval.\n\nContinue adding "${val}"?`);
+        if (!approved) return;
+    } else if (currentCount === MENU_SELECTION_LIMIT) {
+        showToast(`📋 Note: Item will be added as pending approval (#${currentCount + 1})`, 'info');
+    }
+    
     menu[cat].push(val);
     input.value = '';
-    // re-render
     renderMenuCollection($('menuTabContent'));
+    showToast(`✓ Added: ${val}`, 'success');
 }
 
 function removeMenuItem(encodedCat, idx) {
