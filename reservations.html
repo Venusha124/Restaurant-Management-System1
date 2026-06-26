@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ascendia - Reservations</title>
+    <meta name="description" content="Welcome to Ascendia, a premium dining and reservation experience.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Website CSS -->
+    <link rel="stylesheet" href="/website/css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fa-solid fa-bowl-food"></i> ASCENDIA
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Our Menu</a></li>
+                <li><a href="venues.html">Venues</a></li>
+                <li><a href="reservations.html">Reservations</a></li>
+                <li><a href="waitlist.html">Waitlist</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button id="themeToggle" class="theme-toggle-btn" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i></button>
+                <a href="reservations.html" class="btn btn-primary">Book a Table</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header" style="background-image: url('https://images.unsplash.com/photo-1544148103-0773bf10d330?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+        <div class="page-header-overlay"></div>
+        <div class="page-header-content">
+            <h1 class="fade-in-up">Reserve a Table</h1>
+            <p class="fade-in-up delay-1">Secure your spot for an unforgettable evening</p>
+        </div>
+    </header>
+
+    <!-- Reservation Section -->
+    <section id="reservations" class="reservation-section">
+        <div class="section-container">
+            <div class="reservation-grid">
+                <div class="reservation-info">
+                    <h4 class="subtitle">BOOK YOUR EXPERIENCE</h4>
+                    <h2>Reserve a Table</h2>
+                    <p>Secure your spot at Ascendia. Whether it's a romantic dinner or a family gathering, we promise an unforgettable evening.</p>
+                    
+                    <div class="info-item">
+                        <i class="fa-regular fa-clock"></i>
+                        <div>
+                            <h4>Opening Hours</h4>
+                            <p>Mon-Sun: 10:00 AM - 11:00 PM</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <div>
+                            <h4>Location</h4>
+                            <p>123 Culinary Avenue, Food District</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reservation-form-container glass-panel">
+                    <form id="reservationForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" name="customer_name" required placeholder="John Doe">
+                            </div>
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="tel" name="customer_phone" required placeholder="+1 234 567 8900">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Date & Time</label>
+                                <input type="datetime-local" name="date_start" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Guests</label>
+                                <input type="number" name="num_guests" min="1" max="20" required placeholder="2">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Event / Occasion (Optional)</label>
+                            <input type="text" name="event_name" placeholder="e.g. Birthday, Anniversary">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Confirm Reservation</button>
+                    </form>
+                    <div id="reservationStatus" class="status-msg hidden"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h3>ASCENDIA</h3>
+                <p>Elevating the art of dining.</p>
+            </div>
+            <div class="footer-links">
+                <a href="/pos/" class="staff-link"><i class="fa-solid fa-cash-register"></i> Staff POS</a>
+                <a href="/reservation-app/" class="staff-link"><i class="fa-solid fa-book-open"></i> Staff Reservations</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Ascendia Restaurant. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/website/js/main.js"></script>
+</body>
+</html>

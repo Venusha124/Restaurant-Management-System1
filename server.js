@@ -825,6 +825,65 @@ app.post('/api/audit', async (req, res) => {
     }
 });
 
+// --- PUBLIC WEBSITE API ---
+app.post('/api/public/reservations', async (req, res) => {
+    const { customer_name, customer_phone, date_start, num_guests, event_name } = req.body;
+    const errors = validate({
+        customer_name: { required: true },
+        customer_phone: { required: true },
+        date_start: { required: true },
+        num_guests: { required: true, type: 'number', min: 1 }
+    }, req.body);
+
+    if (errors.length > 0) return res.status(400).json({ error: errors.join(', ') });
+
+    try {
+        // Insert as a pending reservation. Defaulting room_id to 1 (General) and total_price to 0 for pending web reservations.
+        const result = await runQuery(
+            "INSERT INTO reservations (customer_name, customer_phone, date_start, num_guests, event_name, status, room_id, total_price) VALUES (?, ?, ?, ?, ?, 'Pending', 1, 0)",
+            [customer_name, customer_phone, date_start, num_guests, event_name || 'Web Reservation']
+        );
+        
+        // Notify any connected reservation apps
+        io.emit('new_reservation', { id: result.lastID, customer_name, status: 'Pending' });
+        res.json({ success: true, id: result.lastID });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/public/event-rooms', async (req, res) => {
+    try {
+        const rooms = await allQuery("SELECT id, name, capacity, price_per_day, type, status FROM event_rooms WHERE status = 'Available'");
+        res.json(rooms);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/public/waitlist', async (req, res) => {
+    const { customer_name, customer_phone, num_guests, notes } = req.body;
+    const errors = validate({
+        customer_name: { required: true },
+        customer_phone: { required: true },
+        num_guests: { required: true, type: 'number', min: 1 }
+    }, req.body);
+
+    if (errors.length > 0) return res.status(400).json({ error: errors.join(', ') });
+
+    try {
+        const result = await runQuery(
+            "INSERT INTO waitlist (customer_name, customer_phone, num_guests, notes) VALUES (?, ?, ?, ?)",
+            [customer_name, customer_phone, num_guests, notes || 'Joined via Website']
+        );
+        
+        io.emit('new_waitlist_entry', { id: result.lastID, customer_name });
+        res.json({ success: true, id: result.lastID });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // --- SOCKET.IO ---
 io.on('connection', (socket) => {
     console.log('Client connected:', socket.id);

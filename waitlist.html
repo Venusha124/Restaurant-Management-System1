@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ascendia - Waitlist</title>
+    <meta name="description" content="Welcome to Ascendia, a premium dining and reservation experience.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Website CSS -->
+    <link rel="stylesheet" href="/website/css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fa-solid fa-bowl-food"></i> ASCENDIA
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Our Menu</a></li>
+                <li><a href="venues.html">Venues</a></li>
+                <li><a href="reservations.html">Reservations</a></li>
+                <li><a href="waitlist.html">Waitlist</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button id="themeToggle" class="theme-toggle-btn" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i></button>
+                <a href="reservations.html" class="btn btn-primary">Book a Table</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Waitlist Section -->
+    <section id="waitlist" class="waitlist-section" style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+        <div class="section-container" style="padding-top: 80px; width: 100%;">
+            <div class="waitlist-container glass-panel text-center">
+                <h4 class="subtitle">FULLY BOOKED?</h4>
+                <h2>Join the Virtual Waitlist</h2>
+                <p>Don't miss out on an extraordinary evening. Join our virtual waitlist and we'll notify you the moment a table frees up!</p>
+                <form id="waitlistForm" class="waitlist-form">
+                    <div class="form-row waitlist-row">
+                        <div class="form-group">
+                            <input type="text" name="customer_name" required placeholder="Your Name">
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" name="customer_phone" required placeholder="Phone Number">
+                        </div>
+                        <div class="form-group">
+                            <input type="number" name="num_guests" min="1" max="20" required placeholder="Guests">
+                        </div>
+                        <div class="form-group btn-group">
+                            <button type="submit" class="btn btn-primary btn-block" style="height: 48px; margin-top: 0;">Join Waitlist</button>
+                        </div>
+                    </div>
+                </form>
+                <div id="waitlistStatus" class="status-msg hidden"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h3>ASCENDIA</h3>
+                <p>Elevating the art of dining.</p>
+            </div>
+            <div class="footer-links">
+                <a href="/pos/" class="staff-link"><i class="fa-solid fa-cash-register"></i> Staff POS</a>
+                <a href="/reservation-app/" class="staff-link"><i class="fa-solid fa-book-open"></i> Staff Reservations</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Ascendia Restaurant. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/website/js/main.js"></script>
+</body>
+</html>

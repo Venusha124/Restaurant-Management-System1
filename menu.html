@@ -1,23 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ascendia - Premium Dining Experience</title>
+    <title>Ascendia - Our Menu</title>
     <meta name="description" content="Welcome to Ascendia, a premium dining and reservation experience.">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Website CSS -->
     <link rel="stylesheet" href="/website/css/style.css">
 </head>
-
 <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -33,29 +29,41 @@
                 <li><a href="waitlist.html">Waitlist</a></li>
             </ul>
             <div class="nav-actions">
-                <button id="themeToggle" class="theme-toggle-btn" title="Toggle Light/Dark Mode"><i
-                        class="fa-solid fa-sun"></i></button>
+                <button id="themeToggle" class="theme-toggle-btn" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i></button>
                 <a href="reservations.html" class="btn btn-primary">Book a Table</a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <header id="home" class="hero">
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <h1 class="fade-in-up">Experience Culinary <span class="highlight">Excellence</span></h1>
-            <p class="fade-in-up delay-1">Discover a world of flavors curated for the extraordinary. Fresh ingredients,
-                masterful chefs, and an ambiance you will never forget.</p>
-            <div class="hero-actions fade-in-up delay-2">
-                <a href="menu.html" class="btn btn-outline">Explore Menu</a>
-                <a href="reservations.html" class="btn btn-primary">Reserve Now</a>
-            </div>
-        </div>
-        <div class="scroll-indicator">
-            <i class="fa-solid fa-chevron-down"></i>
+    <!-- Page Header -->
+    <header class="page-header" style="background-image: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+        <div class="page-header-overlay"></div>
+        <div class="page-header-content">
+            <h1 class="fade-in-up">Our Menu</h1>
+            <p class="fade-in-up delay-1">Culinary excellence in every bite</p>
         </div>
     </header>
+
+    <!-- Menu Section -->
+    <section id="menu" class="menu-section">
+        <div class="section-container">
+            <div class="section-header text-center">
+                <h4 class="subtitle">TASTE THE MAGIC</h4>
+                <h2>Signature Dishes</h2>
+                <p>Explore our carefully curated selection of premium dishes.</p>
+            </div>
+            
+            <div class="category-filters" id="categoryFilters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <!-- Categories will be injected here via JS -->
+            </div>
+
+            <div class="menu-grid" id="menuGrid">
+                <!-- Dishes will be injected here via JS -->
+                <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading Menu...</div>
+            </div>
+        </div>
+    </section>
 
     <!-- Footer -->
     <footer class="footer">
@@ -66,8 +74,7 @@
             </div>
             <div class="footer-links">
                 <a href="/pos/" class="staff-link"><i class="fa-solid fa-cash-register"></i> Staff POS</a>
-                <a href="/reservation-app/" class="staff-link"><i class="fa-solid fa-book-open"></i> Staff
-                    Reservations</a>
+                <a href="/reservation-app/" class="staff-link"><i class="fa-solid fa-book-open"></i> Staff Reservations</a>
             </div>
         </div>
         <div class="footer-bottom">
@@ -78,5 +85,4 @@
     <!-- Scripts -->
     <script src="/website/js/main.js"></script>
 </body>
-
 </html>
