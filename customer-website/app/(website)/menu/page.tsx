@@ -87,7 +87,7 @@ export default function MenuPage() {
                             filteredDishes.map(dish => (
                                 <div key={dish.id} className="dish-card fade-in-up">
                                     {dish.image ? (
-                                        <img src={dish.image} alt={dish.name} className="dish-img" onError={(e) => { (e.target as HTMLImageElement).outerHTML = '<div class="dish-img-placeholder"><i class="fa-solid fa-utensils"></i></div>' }} />
+                                        <img src={`/${dish.image}`} alt={dish.name} className="dish-img" onError={(e) => { (e.target as HTMLImageElement).outerHTML = '<div class="dish-img-placeholder"><i class="fa-solid fa-utensils"></i></div>' }} />
                                     ) : (
                                         <div className="dish-img-placeholder"><i className="fa-solid fa-utensils"></i></div>
                                     )}

@@ -9,9 +9,10 @@ import { ReservationsProvider, useReservations } from './ReservationsContext';
 function ReservationsLayoutContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const { data, refreshData } = useReservations();
-    const [currentTime, setCurrentTime] = useState(new Date());
+    const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
     useEffect(() => {
+        setCurrentTime(new Date());
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
@@ -22,12 +23,11 @@ function ReservationsLayoutContent({ children }: { children: React.ReactNode }) 
         { path: '/reservations/inquiry', icon: 'fa-clipboard-question', label: 'Inquiry' },
         { path: '/reservations/booking', icon: 'fa-calendar-plus', label: 'Booking' },
         { path: '/reservations/events', icon: 'fa-champagne-glasses', label: 'Event Management' },
-        { path: '/reservations/rooms', icon: 'fa-door-open', label: 'Room Reservation' },
-        { path: '/reservations/agreement', icon: 'fa-file-contract', label: 'Agreement' },
-        { path: '/reservations/approval', icon: 'fa-stamp', label: 'Sales Approval' },
-        { path: '/reservations/calendar', icon: 'fa-regular fa-calendar-days', label: 'Calendar' },
-        { path: '/reservations/reports', icon: 'fa-file-invoice', label: 'Reports' },
-        { path: '/reservations/settings', icon: 'fa-gear', label: 'Settings' }
+        { path: '/reservations/rooms', icon: 'fa-city', label: 'Venues' },
+        { path: '/reservations/hotel-rooms', icon: 'fa-bed', label: 'Hotel Rooms' },
+        { path: '/reservations/hotel-bookings', icon: 'fa-address-book', label: 'Hotel Bookings' },
+        { path: '/reservations/finance', icon: 'fa-file-invoice-dollar', label: 'Finance' },
+        { path: '/reservations/agreement', icon: 'fa-file-contract', label: 'Agreement' }
     ];
 
     return (
@@ -57,10 +57,14 @@ function ReservationsLayoutContent({ children }: { children: React.ReactNode }) 
                     ))}
                 </nav>
 
-                <div className="sidebar-footer">
+                <div className="sidebar-footer" style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '5px' }}>
                     <a href="http://localhost:301" target="_blank" className="nav-item">
                         <i className="fa-solid fa-cash-register"></i>
                         <span>Go to POS</span>
+                    </a>
+                    <a href="#" className="nav-item" style={{ color: '#ef4444' }}>
+                        <i className="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Logout</span>
                     </a>
                 </div>
             </aside>
@@ -75,7 +79,7 @@ function ReservationsLayoutContent({ children }: { children: React.ReactNode }) 
                     </div>
                     <div className="topbar-actions">
                         <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: 600 }}>
-                            {currentTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} &nbsp;|&nbsp; {currentTime.toLocaleTimeString()}
+                            {currentTime ? `${currentTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}  |  ${currentTime.toLocaleTimeString()}` : ''}
                         </div>
                         <button className="notification-btn" onClick={() => refreshData()} title="Refresh Data">
                             <i className="fa-solid fa-rotate-right"></i>

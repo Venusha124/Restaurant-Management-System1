@@ -111,7 +111,7 @@ export default function OrderLine() {
                     <div className="order-grid">
                         {displayDishes.map((dish: any) => (
                             <div key={dish.id} className="dish-card" onClick={() => openItemModal(dish)}>
-                                <img src={dish.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"} alt={dish.name} className="dish-img" />
+                                <img src={dish.image ? `/${dish.image}` : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"} alt={dish.name} className="dish-img" />
                                 <div className="dish-title">{dish.name}</div>
                                 <div className="dish-price">{currency}{dish.price.toFixed(2)}</div>
                             </div>
@@ -152,7 +152,7 @@ export default function OrderLine() {
                 <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100 }}>
                     <div className="modal-content" style={{ background: 'var(--bg-main)', padding: '30px', borderRadius: '24px', width: '400px', textAlign: 'center' }}>
                         <h3>Add Item</h3>
-                        <img src={selectedDish.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"} style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', margin: '20px auto' }} />
+                        <img src={selectedDish.image ? `/${selectedDish.image}` : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"} style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', margin: '20px auto' }} />
                         <h4>{selectedDish.name}</h4>
                         <div style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '16px', marginBottom: '24px' }}>{currency}{selectedDish.price.toFixed(2)}</div>
                         

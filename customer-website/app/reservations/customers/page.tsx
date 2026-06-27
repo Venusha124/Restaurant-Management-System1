@@ -12,6 +12,7 @@ export default function CustomersPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [formData, setFormData] = useState({ name: '', phone: '', email: '' });
+    const [activeTab, setActiveTab] = useState('Personal');
 
     const openModal = (customer?: any) => {
         if (customer) {
@@ -74,9 +75,30 @@ export default function CustomersPage() {
                         </h2>
                         <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{customers.length} customers synced from database</p>
                     </div>
-                    <button className="btn btn-primary" onClick={() => openModal()}>
+                    <button className="btn btn-primary" onClick={() => openModal()} style={{ borderRadius: '20px', padding: '10px 20px', boxShadow: '0 0 15px rgba(0, 242, 254, 0.4)' }}>
                         <i className="fa-solid fa-plus" style={{ marginRight: '8px' }}></i>Register Customer
                     </button>
+                </div>
+
+                <div style={{ display: 'flex', borderBottom: '1px solid var(--glass-border)', marginBottom: '24px' }}>
+                    <div 
+                        onClick={() => setActiveTab('Personal')}
+                        style={{ flex: 1, textAlign: 'center', padding: '16px', cursor: 'pointer', fontWeight: 700, borderRadius: '8px 8px 0 0',
+                            background: activeTab === 'Personal' ? 'linear-gradient(90deg, #00f2fe, #4facfe)' : 'transparent',
+                            color: activeTab === 'Personal' ? '#000' : 'var(--text-muted)',
+                            boxShadow: activeTab === 'Personal' ? '0 0 20px rgba(0,242,254,0.4)' : 'none'
+                        }}>
+                        Personal
+                    </div>
+                    <div 
+                        onClick={() => setActiveTab('Company')}
+                        style={{ flex: 1, textAlign: 'center', padding: '16px', cursor: 'pointer', fontWeight: 700, borderRadius: '8px 8px 0 0',
+                            background: activeTab === 'Company' ? 'linear-gradient(90deg, #00f2fe, #4facfe)' : 'transparent',
+                            color: activeTab === 'Company' ? '#000' : 'var(--text-muted)',
+                            boxShadow: activeTab === 'Company' ? '0 0 20px rgba(0,242,254,0.4)' : 'none'
+                        }}>
+                        Company
+                    </div>
                 </div>
                 
                 <div className="table-wrapper">
@@ -84,18 +106,17 @@ export default function CustomersPage() {
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Customer</th>
-                                <th>Phone</th>
-                                <th>Email</th>
-                                <th>Loyalty</th>
-                                <th>Spent</th>
-                                <th>Actions</th>
+                                <th>FULL NAME</th>
+                                <th>PHONE</th>
+                                <th>EMAIL</th>
+                                <th>LOYALTY</th>
+                                <th>ACTIONS</th>
                             </tr>
                         </thead>
                         <tbody>
                             {customers.length === 0 && (
                                 <tr>
-                                    <td colSpan={7}>
+                                    <td colSpan={6}>
                                         <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
                                             <i className="fa-solid fa-users" style={{ fontSize: '32px', marginBottom: '12px' }}></i>
                                             <h3>No Customers</h3>
@@ -117,14 +138,13 @@ export default function CustomersPage() {
                                     </td>
                                     <td style={{ color: 'var(--text-muted)' }}>{cu.phone || '—'}</td>
                                     <td style={{ color: 'var(--text-muted)' }}>{cu.email || '—'}</td>
-                                    <td><span className="badge badge-info">{cu.loyalty_points || 0} pts</span></td>
-                                    <td style={{ color: 'var(--primary)', fontWeight: 700 }}>{formatCurrency(cu.total_spent)}</td>
+                                    <td><span className="badge badge-info" style={{ borderRadius: '16px', padding: '4px 10px', background: 'transparent', border: '1px solid var(--primary)' }}>{cu.loyalty_points || 0} pts</span></td>
                                     <td>
-                                        <div style={{ display: 'flex', gap: '6px' }}>
-                                            <button className="btn btn-outline btn-sm" onClick={() => openModal(cu)}>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <button className="btn btn-outline btn-sm" onClick={() => openModal(cu)} style={{ borderRadius: '50%', width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#fff' }}>
                                                 <i className="fa-solid fa-pen"></i>
                                             </button>
-                                            <button className="btn btn-danger btn-sm" onClick={() => deleteCustomer(cu.id)}>
+                                            <button className="btn btn-danger btn-sm" onClick={() => deleteCustomer(cu.id)} style={{ borderRadius: '50%', width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                 <i className="fa-solid fa-trash"></i>
                                             </button>
                                         </div>

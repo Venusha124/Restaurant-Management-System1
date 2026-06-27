@@ -70,8 +70,27 @@ export default function InquiryPage() {
 
     const closeModal = () => setIsModalOpen(false);
 
+    const inqNext = () => {
+        if (step === 1) {
+            if (!formData.customer_name) return alert('Customer name is required');
+            if (!formData.customer_phone && !formData.customer_email) return alert('At least one contact method (phone or email) is required');
+            if (formData.customer_phone && !/^\+?[0-9\s\-\(\)]{7,15}$/.test(formData.customer_phone)) return alert('Invalid phone number format');
+            if (formData.customer_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.customer_email)) return alert('Invalid email format');
+        }
+        if (step === 2) {
+            if (formData.budget && Number(formData.budget) < 0) return alert('Budget cannot be negative');
+            if (formData.num_guests && Number(formData.num_guests) < 1) return alert('Guests must be at least 1');
+        }
+        if (step < 3) setStep(step + 1);
+    };
+
+    const inqPrev = () => {
+        if (step > 1) setStep(step - 1);
+    };
+
     const submitInquiry = async () => {
         if (!formData.customer_name) return alert('Customer name is required');
+        if (!formData.customer_phone && !formData.customer_email) return alert('At least one contact method is required');
         
         try {
             if (formData.id) {
@@ -213,66 +232,93 @@ export default function InquiryPage() {
                 <div className="modal-overlay open" id="inquiryModal">
                     <div className="modal-content" style={{ maxWidth: '680px', borderTop: '5px solid #10b981', boxShadow: '0 40px 100px rgba(0, 0, 0, 0.6), 0 0 35px rgba(16, 185, 129, 0.15)' }}>
                         <button className="modal-close" onClick={closeModal}><i className="fa-solid fa-xmark"></i></button>
-                        <h3><i className="fa-solid fa-clipboard-question" style={{ color: '#10b981', marginRight: '10px' }}></i>{formData.id ? 'Edit Inquiry' : 'New Inquiry'}</h3>
+                        <h3 id="inquiryModalTitle">
+                            <i className="fa-solid fa-clipboard-question" style={{ color: '#10b981', marginRight: '10px' }}></i>
+                            {formData.id ? 'Edit Inquiry' : 'New Inquiry'}
+                        </h3>
 
-                        {/* Simplified step rendering without complex tabs for now, all in one view for ease of migration */}
-                        <div style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '12px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <div>
-                                <p style={{ fontWeight: 700, color: '#10b981', marginBottom: '12px' }}>Customer Information</p>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                    <div className="form-group" style={{ marginBottom: 0 }}><label>Full Name *</label><input type="text" value={formData.customer_name} onChange={e => setFormData({ ...formData, customer_name: e.target.value })} /></div>
-                                    <div className="form-group" style={{ marginBottom: 0 }}><label>Phone Number</label><input type="text" value={formData.customer_phone} onChange={e => setFormData({ ...formData, customer_phone: e.target.value })} /></div>
-                                    <div className="form-group" style={{ gridColumn: '1 / -1', marginBottom: 0 }}><label>Email Address</label><input type="email" value={formData.customer_email} onChange={e => setFormData({ ...formData, customer_email: e.target.value })} /></div>
-                                    <div className="form-group" style={{ marginBottom: 0 }}>
-                                        <label>Source</label>
-                                        <select value={formData.source} onChange={e => setFormData({ ...formData, source: e.target.value })}>
-                                            <option>Walk-in</option><option>Phone Call</option><option>Email</option><option>Social Media</option><option>Website</option><option>Referral</option>
-                                        </select>
-                                    </div>
-                                    <div className="form-group" style={{ marginBottom: 0 }}><label>Assigned To</label><input type="text" value={formData.assigned_to} onChange={e => setFormData({ ...formData, assigned_to: e.target.value })} /></div>
+                        {/* Wizard Steps indicator */}
+                        <div className="inq-steps-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px', marginBottom: '24px', position: 'relative' }}>
+                            <div style={{ position: 'absolute', top: '15px', left: '10%', right: '10%', height: '2px', background: 'var(--glass-border)', zIndex: 0 }}></div>
+                            <div style={{ position: 'absolute', top: '15px', left: '10%', width: step === 1 ? '0%' : step === 2 ? '40%' : '80%', height: '2px', background: '#10b981', zIndex: 1, transition: 'width 0.3s' }}></div>
+                            {[1, 2, 3].map((s) => (
+                                <div key={s} className={`inq-step ${s < step ? 'done' : s === step ? 'active' : ''}`} style={{ 
+                                    width: '32px', height: '32px', borderRadius: '50%', background: s <= step ? '#10b981' : '#222', color: '#fff', 
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2, border: `2px solid ${s <= step ? '#10b981' : 'var(--glass-border)'}`,
+                                    fontWeight: 'bold', transition: 'all 0.3s'
+                                }}>
+                                    {s < step ? <i className="fa-solid fa-check" style={{ fontSize: '14px' }}></i> : s}
                                 </div>
-                            </div>
-                            
-                            <div>
-                                <p style={{ fontWeight: 700, color: '#10b981', marginBottom: '12px' }}>Event Details</p>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                    <div className="form-group" style={{ marginBottom: 0 }}>
-                                        <label>Event Type</label>
-                                        <select value={formData.event_type} onChange={e => setFormData({ ...formData, event_type: e.target.value })}>
-                                            <option>Wedding</option><option>Birthday Party</option><option>Corporate Event</option><option>Conference</option><option>Anniversary</option><option>Other</option>
-                                        </select>
-                                    </div>
-                                    <div className="form-group" style={{ marginBottom: 0 }}>
-                                        <label>Preferred Venue</label>
-                                        <select value={formData.room_id} onChange={e => setFormData({ ...formData, room_id: e.target.value })}>
-                                            <option value="">-- No Preference --</option>
-                                            {eventRooms.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="form-group" style={{ marginBottom: 0 }}><label>Preferred Date</label><input type="date" value={formData.preferred_date} onChange={e => setFormData({ ...formData, preferred_date: e.target.value })} /></div>
-                                    <div className="form-group" style={{ marginBottom: 0 }}><label>Number of Guests</label><input type="number" value={formData.num_guests} onChange={e => setFormData({ ...formData, num_guests: e.target.value })} /></div>
-                                    <div className="form-group" style={{ marginBottom: 0 }}><label>Estimated Budget</label><input type="number" value={formData.budget} onChange={e => setFormData({ ...formData, budget: e.target.value })} /></div>
-                                    <div className="form-group" style={{ marginBottom: 0 }}><label>Follow-up Date</label><input type="date" value={formData.follow_up_date} onChange={e => setFormData({ ...formData, follow_up_date: e.target.value })} /></div>
-                                    <div className="form-group" style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
-                                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-                                            <input type="checkbox" checked={formData.flexible_date} onChange={e => setFormData({ ...formData, flexible_date: e.target.checked })} style={{ width: 'auto' }} /> Date is flexible
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <p style={{ fontWeight: 700, color: '#10b981', marginBottom: '12px' }}>Requirements & Notes</p>
-                                <div className="form-group"><label>Special Requirements</label><textarea rows={3} value={formData.requirements} onChange={e => setFormData({ ...formData, requirements: e.target.value })} /></div>
-                                <div className="form-group"><label>Internal Notes</label><textarea rows={2} value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} /></div>
-                            </div>
+                            ))}
                         </div>
 
-                        <div className="modal-actions">
-                            <button className="btn btn-outline" onClick={closeModal}>Cancel</button>
-                            <button className="btn btn-primary" onClick={submitInquiry} style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', border: 'none' }}>
-                                <i className="fa-solid fa-floppy-disk" style={{ marginRight: '8px' }}></i>Save Inquiry
-                            </button>
+                        <div style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '12px' }}>
+                            {step === 1 && (
+                                <div id="inq-step-1" className="inq-step-content" style={{ animation: 'fadeIn 0.3s ease' }}>
+                                    <p style={{ fontWeight: 700, color: '#10b981', marginBottom: '16px' }}>Step 1 of 3 — Contact Information</p>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                        <div className="form-group" style={{ marginBottom: 0 }}><label>Full Name *</label><input type="text" value={formData.customer_name} onChange={e => setFormData({ ...formData, customer_name: e.target.value })} /></div>
+                                        <div className="form-group" style={{ marginBottom: 0 }}><label>Phone Number</label><input type="text" value={formData.customer_phone} onChange={e => setFormData({ ...formData, customer_phone: e.target.value })} /></div>
+                                        <div className="form-group" style={{ gridColumn: '1 / -1', marginBottom: 0 }}><label>Email Address</label><input type="email" value={formData.customer_email} onChange={e => setFormData({ ...formData, customer_email: e.target.value })} /></div>
+                                        <div className="form-group" style={{ marginBottom: 0 }}>
+                                            <label>Source</label>
+                                            <select value={formData.source} onChange={e => setFormData({ ...formData, source: e.target.value })}>
+                                                <option>Walk-in</option><option>Phone Call</option><option>Email</option><option>Social Media</option><option>Website</option><option>Referral</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group" style={{ marginBottom: 0 }}><label>Assigned To</label><input type="text" value={formData.assigned_to} onChange={e => setFormData({ ...formData, assigned_to: e.target.value })} /></div>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {step === 2 && (
+                                <div id="inq-step-2" className="inq-step-content" style={{ animation: 'fadeIn 0.3s ease' }}>
+                                    <p style={{ fontWeight: 700, color: '#10b981', marginBottom: '16px' }}>Step 2 of 3 — Event Details</p>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                        <div className="form-group" style={{ marginBottom: 0 }}>
+                                            <label>Event Type</label>
+                                            <select value={formData.event_type} onChange={e => setFormData({ ...formData, event_type: e.target.value })}>
+                                                <option>Wedding</option><option>Birthday Party</option><option>Corporate Event</option><option>Conference</option><option>Anniversary</option><option>Other</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group" style={{ marginBottom: 0 }}>
+                                            <label>Preferred Venue</label>
+                                            <select value={formData.room_id} onChange={e => setFormData({ ...formData, room_id: e.target.value })}>
+                                                <option value="">-- No Preference --</option>
+                                                {eventRooms.map((r: any) => <option key={r.id} value={r.id}>{r.name}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="form-group" style={{ marginBottom: 0 }}><label>Preferred Date</label><input type="date" value={formData.preferred_date} onChange={e => setFormData({ ...formData, preferred_date: e.target.value })} /></div>
+                                        <div className="form-group" style={{ marginBottom: 0 }}><label>Number of Guests</label><input type="number" min="1" value={formData.num_guests} onChange={e => setFormData({ ...formData, num_guests: e.target.value })} /></div>
+                                        <div className="form-group" style={{ marginBottom: 0 }}><label>Estimated Budget</label><input type="number" min="0" value={formData.budget} onChange={e => setFormData({ ...formData, budget: e.target.value })} /></div>
+                                        <div className="form-group" style={{ marginBottom: 0 }}><label>Follow-up Date</label><input type="date" value={formData.follow_up_date} onChange={e => setFormData({ ...formData, follow_up_date: e.target.value })} /></div>
+                                        <div className="form-group" style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
+                                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                                                <input type="checkbox" checked={formData.flexible_date} onChange={e => setFormData({ ...formData, flexible_date: e.target.checked })} style={{ width: 'auto' }} /> Date is flexible
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {step === 3 && (
+                                <div id="inq-step-3" className="inq-step-content" style={{ animation: 'fadeIn 0.3s ease' }}>
+                                    <p style={{ fontWeight: 700, color: '#10b981', marginBottom: '16px' }}>Step 3 of 3 — Requirements & Notes</p>
+                                    <div className="form-group"><label>Special Requirements</label><textarea rows={4} placeholder="Describe any special setup, catering, AV equipment, decorations, or other requirements..." value={formData.requirements} onChange={e => setFormData({ ...formData, requirements: e.target.value })} /></div>
+                                    <div className="form-group"><label>Internal Notes</label><textarea rows={3} placeholder="Internal notes for staff only..." value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} /></div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="modal-actions" style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+                            {step > 1 && <button className="btn btn-outline" onClick={inqPrev} style={{ flex: 1 }}><i className="fa-solid fa-arrow-left" style={{ marginRight: '8px' }}></i>Back</button>}
+                            {step === 1 && <button className="btn btn-outline" onClick={closeModal} style={{ flex: 1 }}>Cancel</button>}
+                            {step < 3 && <button className="btn btn-primary" onClick={inqNext} style={{ flex: 1 }}>Next <i className="fa-solid fa-arrow-right" style={{ marginLeft: '8px' }}></i></button>}
+                            {step === 3 && (
+                                <button className="btn btn-primary" onClick={submitInquiry} style={{ flex: 1, background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', border: 'none' }}>
+                                    <i className="fa-solid fa-floppy-disk" style={{ marginRight: '8px' }}></i>Save Inquiry
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -29,10 +29,58 @@ export default function BookingPage() {
         return <span className={`badge ${cls}`}>{status}</span>;
     };
 
+    const checkOverlap = (roomId: string | number, dateStart: string, dateEnd: string, excludeResId: number | null = null) => {
+        if (!roomId || !dateStart) return false;
+        const start = new Date(dateStart);
+        const end = dateEnd ? new Date(dateEnd) : start;
+        
+        return reservations.some((r: any) => {
+            if (String(r.room_id) !== String(roomId)) return false;
+            if (r.status !== 'Confirmed') return false;
+            if (excludeResId && r.id === excludeResId) return false;
+            
+            const rStart = new Date(r.date_start);
+            const rEnd = r.date_end ? new Date(r.date_end) : rStart;
+            
+            return start <= rEnd && end >= rStart;
+        });
+    };
+
     const submitBooking = async () => {
         if (!form.event_name) return alert('Event Name required');
         if (!form.customer_name) return alert('Customer Name required');
+        if (!form.customer_phone) return alert('Customer phone is required');
+        if (form.customer_phone && !/^\+?[0-9\s\-\(\)]{7,15}$/.test(form.customer_phone)) return alert('Invalid phone number format');
         if (!form.date_start) return alert('Start Date required');
+        if (form.date_end && new Date(form.date_start) > new Date(form.date_end)) return alert('End date cannot be before start date');
+        if (form.num_guests && Number(form.num_guests) < 1) return alert('Number of guests must be at least 1');
+        if (form.total_price && Number(form.total_price) < 0) return alert('Total price cannot be negative');
+
+        const overlaps = checkOverlap(form.room_id, form.date_start, form.date_end);
+        if (overlaps && form.status === 'Confirmed') {
+            if (confirm('⚠️ VENUE OVERLAP CONFLICT!\n\nThis room/venue is already booked for the selected dates. Would you like to add the customer to the Waitlist queue instead?')) {
+                try {
+                    await fetchAPI('/waitlist', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            room_id: form.room_id,
+                            customer_name: form.customer_name,
+                            customer_phone: form.customer_phone,
+                            date_start: form.date_start,
+                            date_end: form.date_end,
+                            num_guests: form.num_guests,
+                            event_name: form.event_name,
+                            notes: form.notes || ''
+                        })
+                    });
+                    await refreshData();
+                    alert('Customer added to the Waitlist queue ✓');
+                } catch (err: any) {
+                    alert('Failed to add to Waitlist: ' + err.message);
+                }
+            }
+            return;
+        }
 
         try {
             await fetchAPI('/reservations', { method: 'POST', body: JSON.stringify(form) });
@@ -73,18 +121,45 @@ export default function BookingPage() {
     };
 
     const updateReservation = async () => {
+        if (!editForm.event_name) return alert('Event Name required');
+        if (!editForm.customer_name) return alert('Customer Name required');
+        if (!editForm.customer_phone) return alert('Customer phone is required');
+        if (editForm.customer_phone && !/^\+?[0-9\s\-\(\)]{7,15}$/.test(editForm.customer_phone)) return alert('Invalid phone number format');
+        if (!editForm.date_start) return alert('Start Date required');
+        if (editForm.date_end && new Date(editForm.date_start) > new Date(editForm.date_end)) return alert('End date cannot be before start date');
+        if (editForm.num_guests && Number(editForm.num_guests) < 1) return alert('Number of guests must be at least 1');
+        if (editForm.total_price && Number(editForm.total_price) < 0) return alert('Total price cannot be negative');
+
+        const overlaps = checkOverlap(editForm.room_id, editForm.date_start, editForm.date_end, editForm.id);
+        if (overlaps && editForm.status === 'Confirmed') {
+            alert('⚠️ VENUE OVERLAP CONFLICT!\n\nThis room/venue is already booked for the selected dates. Please change the dates, venue, or status.');
+            return;
+        }
+
         try {
-            await fetchAPI(`/reservations/${editForm.id}`, { method: 'PUT', body: JSON.stringify(editForm) });
+            const response = await fetchAPI(`/reservations/${editForm.id}`, { method: 'PUT', body: JSON.stringify(editForm) });
+            const data = await response.json();
             setIsEditModalOpen(false);
             await refreshData();
+            if (data.promoted) {
+                setTimeout(() => {
+                    alert(`🎉 WAITLIST PROMOTION:\n\nCustomer "${data.promoted.customer_name}" has been automatically promoted to a Pending booking for Room/Venue!`);
+                }, 500);
+            }
         } catch (e: any) { alert('Error updating booking: ' + e.message); }
     };
 
     const deleteReservation = async (id: number) => {
         if (!confirm('Delete this booking?')) return;
         try {
-            await fetchAPI(`/reservations/${id}`, { method: 'DELETE' });
+            const response = await fetchAPI(`/reservations/${id}`, { method: 'DELETE' });
+            const data = await response.json();
             await refreshData();
+            if (data.promoted) {
+                setTimeout(() => {
+                    alert(`🎉 WAITLIST PROMOTION:\n\nCustomer "${data.promoted.customer_name}" has been automatically promoted to a Pending booking for Room/Venue!`);
+                }, 500);
+            }
         } catch (e: any) { alert('Error: ' + e.message); }
     };
 

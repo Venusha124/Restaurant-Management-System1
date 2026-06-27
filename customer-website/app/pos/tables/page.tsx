@@ -56,6 +56,14 @@ export default function ManageTables() {
 
     const handleSaveTable = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!formData.name.trim()) {
+            return alert('Table name is required.');
+        }
+        if (formData.seats < 1) {
+            return alert('Number of seats must be at least 1.');
+        }
+
         try {
             if (formData.id) {
                 await fetchAPI(`/tables/${formData.id}`, {

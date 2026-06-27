@@ -18,6 +18,12 @@ export default function WaitlistPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (formData.customer_phone && !/^\+?[0-9\s\-\(\)]{7,15}$/.test(formData.customer_phone)) {
+            setStatus({ message: 'Invalid phone number format.', type: 'error' });
+            return;
+        }
+
         setSubmitting(true);
         setStatus({ message: '', type: '' });
 

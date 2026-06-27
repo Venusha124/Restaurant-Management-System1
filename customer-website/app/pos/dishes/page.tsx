@@ -41,6 +41,14 @@ export default function ManageDishes() {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!formData.name.trim()) {
+            return alert('Dish name is required.');
+        }
+        if (parseFloat(formData.price) < 0) {
+            return alert('Price cannot be negative.');
+        }
+
         try {
             const payload = { ...formData, price: parseFloat(formData.price) };
             if (formData.id) {

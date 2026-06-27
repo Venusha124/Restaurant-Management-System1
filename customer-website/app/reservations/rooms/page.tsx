@@ -53,6 +53,9 @@ export default function RoomsPage() {
 
     const submitRoom = async () => {
         if (!formData.name) return alert('Venue name is required');
+        if (formData.capacity && Number(formData.capacity) <= 0) return alert('Capacity must be greater than 0');
+        if (formData.price_per_day && Number(formData.price_per_day) < 0) return alert('Price per day cannot be negative');
+
         try {
             if (formData.id) {
                 await fetchAPI(`/event-rooms/${formData.id}`, { method: 'PUT', body: JSON.stringify(formData) });

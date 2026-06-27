@@ -37,6 +37,20 @@ export default function ManageCustomers() {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!formData.name.trim()) {
+            return alert('Name is required.');
+        }
+        if (!formData.phone.trim()) {
+            return alert('Phone is required.');
+        }
+        if (formData.phone && !/^\+?[0-9\s\-\(\)]{7,15}$/.test(formData.phone)) {
+            return alert('Invalid phone number format.');
+        }
+        if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            return alert('Invalid email format.');
+        }
+
         try {
             if (formData.id) {
                 await fetchAPI(`/customers/${formData.id}`, {

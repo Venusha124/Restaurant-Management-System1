@@ -68,6 +68,20 @@ export default function ManageUsers() {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!formData.name.trim()) {
+            return alert('Name is required.');
+        }
+        if (!formData.id && formData.username.trim().length < 3) {
+            return alert('Username must be at least 3 characters.');
+        }
+        if (!formData.id && formData.password.length < 4) {
+            return alert('Password must be at least 4 characters.');
+        }
+        if (formData.id && formData.password && formData.password.length < 4) {
+            return alert('New password must be at least 4 characters.');
+        }
+
         try {
             if (formData.id) {
                 const payload = { ...formData };

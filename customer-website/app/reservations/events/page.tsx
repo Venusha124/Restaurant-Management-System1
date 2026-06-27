@@ -37,6 +37,8 @@ export default function EventsPage() {
     const currency = settings?.currency_symbol || 'Rs.';
 
     const [activeTab, setActiveTab] = useState('events');
+    const [isAddingEvent, setIsAddingEvent] = useState(false);
+    const [eventFormTab, setEventFormTab] = useState('General Details');
     const [menuCollection, setMenuCollection] = useState<any>({});
     const [newItems, setNewItems] = useState<any>({});
 
@@ -116,24 +118,47 @@ export default function EventsPage() {
     return (
         <div style={{ animation: 'fadeIn 0.5s ease' }}>
             <div className="card">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                            <h2 style={{ fontSize: '20px', fontWeight: 800 }}>
-                                <i className="fa-solid fa-champagne-glasses" style={{ color: 'var(--primary)', marginRight: '10px' }}></i>
-                                Event Management
-                            </h2>
-                            <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{reservations.length} events in database</p>
+                {!isAddingEvent ? (
+                    <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                                <h2 style={{ fontSize: '20px', fontWeight: 800 }}>
+                                    <i className="fa-solid fa-champagne-glasses" style={{ color: 'var(--primary)', marginRight: '10px' }}></i>
+                                    Event Management
+                                </h2>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{reservations.length} events in database</p>
+                            </div>
+                            <button className="btn btn-primary" onClick={() => setIsAddingEvent(true)} style={{ borderRadius: '20px', padding: '10px 20px', boxShadow: '0 0 15px rgba(0, 242, 254, 0.4)' }}>
+                                <i className="fa-solid fa-plus" style={{ marginRight: '8px' }}></i>Add Event
+                            </button>
                         </div>
-                    </div>
-                    
-                    <div className="tabs" style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                        <button className={`tab-btn ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Events</button>
-                        <button className={`tab-btn ${activeTab === 'menu' ? 'active' : ''}`} onClick={() => setActiveTab('menu')}>Menu Collection</button>
-                    </div>
-                </div>
+                        
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '16px', borderBottom: '1px solid var(--glass-border)' }}>
+                            <div 
+                                onClick={() => setActiveTab('events')}
+                                style={{ padding: '12px 24px', cursor: 'pointer', fontWeight: 700, borderRadius: '8px 8px 0 0',
+                                    background: activeTab === 'events' ? 'linear-gradient(90deg, #00f2fe, #4facfe)' : 'transparent',
+                                    color: activeTab === 'events' ? '#000' : 'var(--text-muted)',
+                                    boxShadow: activeTab === 'events' ? '0 0 20px rgba(0,242,254,0.4)' : 'none',
+                                    display: 'flex', alignItems: 'center', gap: '8px'
+                                }}>
+                                <i className="fa-solid fa-list-ul"></i> General Details
+                            </div>
+                            <div 
+                                onClick={() => setActiveTab('menu')}
+                                style={{ padding: '12px 24px', cursor: 'pointer', fontWeight: 700, borderRadius: '8px 8px 0 0',
+                                    background: activeTab === 'menu' ? 'linear-gradient(90deg, #00f2fe, #4facfe)' : 'transparent',
+                                    color: activeTab === 'menu' ? '#000' : 'var(--text-muted)',
+                                    boxShadow: activeTab === 'menu' ? '0 0 20px rgba(0,242,254,0.4)' : 'none',
+                                    display: 'flex', alignItems: 'center', gap: '8px'
+                                }}>
+                                <i className="fa-solid fa-utensils"></i> Menu Sections
+                            </div>
+                        </div>
+                    </>
+                ) : null}
 
-                {activeTab === 'events' && (
+                {!isAddingEvent && activeTab === 'events' && (
                     <div style={{ marginTop: '16px' }}>
                         {reservations.length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
@@ -181,7 +206,7 @@ export default function EventsPage() {
                     </div>
                 )}
 
-                {activeTab === 'menu' && (
+                {!isAddingEvent && activeTab === 'menu' && (
                     <div style={{ marginTop: '16px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--glass-border)' }}>
                             <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 600 }}>
@@ -235,6 +260,99 @@ export default function EventsPage() {
                                 );
                             })}
                         </div>
+                    </div>
+                )}
+
+                {isAddingEvent && (
+                    <div style={{ animation: 'fadeIn 0.3s ease' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <div>
+                                <h2 style={{ fontSize: '20px', fontWeight: 800 }}>
+                                    <i className="fa-solid fa-calendar-plus" style={{ color: 'var(--primary)', marginRight: '10px' }}></i>
+                                    Add Event
+                                </h2>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Event Management</p>
+                            </div>
+                            <button className="btn btn-outline" onClick={() => setIsAddingEvent(false)} style={{ borderRadius: '20px', border: 'none', color: '#fff', fontSize: '12px' }}>
+                                <i className="fa-solid fa-arrow-left" style={{ marginRight: '8px' }}></i>Back to List
+                            </button>
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '24px' }}>
+                            {['General Details', 'Venue & Room', 'Menu', 'Material', 'Event Order', 'Check List & Change', 'Event Extension', 'Payment Summary'].map(tab => (
+                                <button 
+                                    key={tab} 
+                                    onClick={() => setEventFormTab(tab)}
+                                    style={{ 
+                                        padding: '8px 16px', borderRadius: '20px', border: '1px solid var(--glass-border)', fontSize: '12px', fontWeight: 700, cursor: 'pointer', flexShrink: 0,
+                                        background: eventFormTab === tab ? 'linear-gradient(90deg, #00f2fe, #4facfe)' : 'rgba(255,255,255,0.05)',
+                                        color: eventFormTab === tab ? '#000' : 'var(--text-muted)',
+                                        boxShadow: eventFormTab === tab ? '0 0 15px rgba(0,242,254,0.3)' : 'none'
+                                    }}>
+                                    {tab}
+                                </button>
+                            ))}
+                        </div>
+
+                        {eventFormTab === 'General Details' && (
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                                <div className="form-group">
+                                    <label>BOOKING NO *</label>
+                                    <input type="text" placeholder="BKG-20260614-2981 (Wedding)" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid var(--primary)', boxShadow: '0 0 10px rgba(0,242,254,0.1)' }} />
+                                </div>
+                                <div className="form-group">
+                                    <label>PAX SIZE *</label>
+                                    <input type="number" defaultValue="250" />
+                                </div>
+                                <div className="form-group">
+                                    <label>FUNCTION TYPE</label>
+                                    <select><option>Wedding</option><option>Party</option></select>
+                                </div>
+                                <div className="form-group">
+                                    <label>EVENT TYPE *</label>
+                                    <select><option>Internal</option><option>External</option></select>
+                                </div>
+                                <div className="form-group">
+                                    <label>PACKAGE TYPE *</label>
+                                    <select><option>Standard Package</option></select>
+                                </div>
+                                <div className="form-group">
+                                    <label>MEAL TYPE</label>
+                                    <select><option>Lunch</option><option>Dinner</option></select>
+                                </div>
+                                <div className="form-group">
+                                    <label>START DATE</label>
+                                    <input type="date" defaultValue="2026-09-07" />
+                                </div>
+                                <div className="form-group">
+                                    <label>END DATE</label>
+                                    <input type="date" />
+                                </div>
+                                <div className="form-group">
+                                    <label>START TIME</label>
+                                    <input type="time" />
+                                </div>
+                                <div className="form-group">
+                                    <label>END TIME</label>
+                                    <input type="time" />
+                                </div>
+                                <div className="form-group">
+                                    <label>MEAL TIME</label>
+                                    <input type="time" />
+                                </div>
+                                <div className="form-group">
+                                    <label>CHILDREN COUNT</label>
+                                    <input type="number" />
+                                </div>
+                            </div>
+                        )}
+                        
+                        {eventFormTab !== 'General Details' && (
+                            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                                <i className="fa-solid fa-person-digging" style={{ fontSize: '32px', marginBottom: '16px' }}></i>
+                                <h3>{eventFormTab} under construction</h3>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
